@@ -142,15 +142,21 @@ int main(int argc, char** argv){
                 bitY = 0;
                 bitmapIndex++;
             }
+            else {
+                bitX++;
+            }
             if (bitmapIndex == bitmaps.size()){
                 // you can out of images which shouldn't be possible
                 cout << "Out of availible image to draw" << endl;
                 break;
             }
             ColorRGB color(
-                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).red/255.0,
-                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).green/255.0, 
-                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).blue/255.0);
+                bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).red/255.0,
+                bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).green/255.0, 
+                bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).blue/255.0);
+          //  if (bitmapIndex == 0){
+           //     cout << "(" << color.red() <<"," << color.green() <<"," << color.blue() <<")" << endl;
+           // }
             output.pixelColor(i, j, color);
         }
         
@@ -196,6 +202,10 @@ Bitmap* readImage(string fn){
                 (unsigned char)(q.red() * 255.0), 
                 (unsigned char)(q.green() * 255.0),
                 (unsigned char)(q.blue() * 255.0));
+            if (fn.substr(fn.size() - 9)== "_test.png"){ // both clear
+               // cout << "(" << q.red() << ", " << q.green() << ", " << q.blue() << ")" <<endl;
+               // cout << "(" << (int)b->getPixel(x, y).red<< ", "<< (int)b->getPixel(x, y).green << "," <<(int)b->getPixel(x, y).blue << ")" << endl;
+            }
            
         } 
         //cout << " " << y << endl;
