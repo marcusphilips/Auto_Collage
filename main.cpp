@@ -6,11 +6,15 @@ Made by Marcell Fulop for Citrus Hack 2022
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 using namespace Magick;
 namespace fs = std::filesystem;
 
+/*
+Holds the red green and blue values with a range from 0 to 255
+*/
 struct Pixel{
     // val ranges 0 - 255
     unsigned char red;
@@ -20,6 +24,9 @@ struct Pixel{
     Pixel(unsigned char r, unsigned char g, unsigned char b): red(r), green(g), blue(b) {}
 };
 
+/*
+Think it as a very basic image format; stores pixels in a 2D array
+*/
 class Bitmap{
     private:
         Pixel** pixels; // [y][x]
@@ -32,6 +39,12 @@ class Bitmap{
             pixels[i] = new Pixel[x];
         }
     }
+    ~Bitmap(){
+        for (int i = 0; i < y; i++){
+            delete[] pixels[i];
+        }
+        delete[] pixels;
+    }
     void setPixel(int col, int row, unsigned char red, unsigned char green, unsigned char blue){
         pixels[row][col].red = red;
         pixels[row][col].green = green;
@@ -40,6 +53,12 @@ class Bitmap{
     Pixel getPixel(int col, int row) const {
         // does not check if such coordinate is out of bounds
         return pixels[row][col];
+    }
+    int getWidth()const{
+        return x;
+    }
+    int getHeight() const{
+        return y;
     }
 };
 
@@ -51,7 +70,7 @@ bool isValidFile(string fn);
 /*
 Reads in the image file and puts it into the bitmap
 */
-Bitmap readImage(string fn);
+Bitmap* readImage(string fn);
 
 int main(int argc, char** argv){
     // need to capture original image files
@@ -67,14 +86,14 @@ int main(int argc, char** argv){
         i++;
     }
     filepath.push_back('/');
-    cout << filepath << endl;
+   // cout << filepath << endl;
     // point to the folder that contains all the files
     InitializeMagick(*argv);
-    vector<Bitmap> bitmaps;
+    vector<Bitmap*> bitmaps;
     for (const auto& entry : fs::directory_iterator(filepath)){
        if (isValidFile(entry.path().string())){
            // valid file therefore read the image
-            cout << entry.path().string() << endl;
+            // cout << entry.path().string() << endl;
             // readfile
             bitmaps.push_back(readImage(entry.path().string()));
        }
@@ -82,17 +101,31 @@ int main(int argc, char** argv){
            cout << entry.path().string() << " is an invalid file. Accepting only png, jpg, jpegs" << endl;
        }
     }
-   
+    int totalPixelAmount = 0;
+    for (unsigned i = 0; i < bitmaps.size(); i++){
+        totalPixelAmount += bitmaps.at(i)->getHeight() * bitmaps.at(i)->getWidth();
+    }
+    
+    // will make new image dimensioned sqrt(totalPixelAmount) by sqrt(totalPixelAmount)
+    // ie a square
+    int n = (int) sqrt((double) totalPixelAmount);
+    Geometry g = Geometry(n,n);
+    Quantum q(0);
+    Color c(q, q, q); // c is black
+    Image output = Image(g, c);
+    // output is our "canvas"
+    output.write("testing.png");
     return 0;
 }
 
 bool isValidFile(string fn){
+   // cout << "Testing:" << fn.substr(fn.size() - 4) << fn.size() << endl;
     if (fn.size() < 4)
         return false;
-    if (fn.front() == '.'){
-        return false;
-    }
+    
+   // cout << (fn.substr(fn.size() - 4) == ".jpg") << endl;
     if (fn.substr(fn.size() - 4) == ".jpg"){
+
         return true;
     }
     if (fn.substr(fn.size() - 5) == ".jpeg"){
@@ -104,20 +137,22 @@ bool isValidFile(string fn){
     return false;
 }
 
-Bitmap readImage(string fn){
+Bitmap* readImage(string fn){
     Image im;
     im.read(fn);
     const int WIDTH = im.columns();
     const int HEIGHT = im.rows();
-    Bitmap b(WIDTH, HEIGHT);
+    Bitmap* b = new Bitmap(WIDTH, HEIGHT);
     for (int y = 0; y < HEIGHT; y++){
         for (int x = 0; x < WIDTH; x++){
             ColorRGB q = im.pixelColor(x, y);
-            b.setPixel(x, y, 
-                (unsigned char)(q.red() * 255), 
-                (unsigned char)(q.green() * 255),
-                (unsigned char)(q.blue() * 255));
-        }
+            b->setPixel(x, y, 
+                (unsigned char)(q.red() * 255.0), 
+                (unsigned char)(q.green() * 255.0),
+                (unsigned char)(q.blue() * 255.0));
+           
+        } 
+        //cout << " " << y << endl;
     }
     return b;
 
