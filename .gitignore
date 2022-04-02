@@ -1,2 +1,8 @@
 *.jpg
 *.png
+CMakeCache.txt
+MakeFiles/
+Makefile
+auto_collage
+cmake_install.cmake
+CMakeFiles/
