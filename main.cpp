@@ -8,7 +8,7 @@ Made by Marcell Fulop for Citrus Hack 2022
 
 using namespace std;
 using namespace Magick;
-
+namespace fs = std::filesystem;
 
 struct Pixel{
     unsigned char red;
@@ -33,6 +33,9 @@ int main(int argc, char** argv){
     cout << filepath << endl;
     // point to the folder that contains all the files
     InitializeMagick(*argv);
-
+    for (const auto& entry : fs::directory_iterator(filepath)){
+       cout << entry.path() << endl;
+       string fn = entry.path();
+    }
     return 0;
 }
