@@ -73,9 +73,10 @@ Reads in the image file and puts it into the bitmap
 Bitmap* readImage(string fn);
 
 /*
-Takes in bitmap and image and starting coordinates
+Takes in bitmap and image and starting coordinates to draw to Image object with the bitmap
+Returns with dynamically allocated array of the next empty coordinates
 */
-void drawToImage(Image& im, Bitmap* from, int startX, int startY);
+//void drawToImage(Image& im, Bitmap* from, int* startX, int* startY);
 
 int main(int argc, char** argv){
     // need to capture original image files
@@ -107,7 +108,13 @@ int main(int argc, char** argv){
        }
     }
     int totalPixelAmount = 0;
+    int xSmallest = 0;
+    int ySmallest = 0;
     for (unsigned i = 0; i < bitmaps.size(); i++){
+        if (ySmallest < bitmaps.at(i)->getHeight())
+            ySmallest = bitmaps.at(i)->getHeight();
+        if (xSmallest < bitmaps.at(i)->getWidth())
+            xSmallest = bitmaps.at(i)->getWidth();
         totalPixelAmount += bitmaps.at(i)->getHeight() * bitmaps.at(i)->getWidth();
     }
     
@@ -120,9 +127,32 @@ int main(int argc, char** argv){
     Image output = Image(g, c);
     // output is our "canvas"
     // will be doing sacattering every two images
-    for (unsigned i = 0; i < bitmaps.size() - 1; i+=2){
-        // find the intersection of i and i + 1
-        int y;
+    // get ready I'm about to make the world's worst collage
+    unsigned bitmapIndex = 0;
+    int bitX = 0;
+    int bitY = 0;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            if (bitX == bitmaps.at(bitmapIndex)->getWidth()){
+                bitX = 0;
+                bitY++;
+            }
+            if (bitY == bitmaps.at(bitmapIndex)->getHeight()){
+                bitX = 0;
+                bitY = 0;
+                bitmapIndex++;
+            }
+            if (bitmapIndex == bitmaps.size()){
+                // you can out of images which shouldn't be possible
+                cout << "Out of availible image to draw" << endl;
+                break;
+            }
+            ColorRGB color(
+                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).red/255.0,
+                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).green/255.0, 
+                (double)bitmaps.at(bitmapIndex)->getPixel(bitX, bitY).blue/255.0);
+            output.pixelColor(i, j, color);
+        }
         
     }
     output.write("testing.png");
@@ -142,7 +172,6 @@ bool isValidFile(string fn){
     
    // cout << (fn.substr(fn.size() - 4) == ".jpg") << endl;
     if (fn.substr(fn.size() - 4) == ".jpg"){
-
         return true;
     }
     if (fn.substr(fn.size() - 5) == ".jpeg"){
@@ -174,3 +203,25 @@ Bitmap* readImage(string fn){
     return b;
 
 }
+/*
+void drawToImage(Image& im, Bitmap* from, int* startX, int* startY){
+   int oX = *startX;
+   int oY = *startY;
+    for (int i = 0; i < from->getHeight(); i++){
+        for (int j = 0; j < from->getWidth(); j++){
+            if (*startX == im.columns() - 1 && j  == from->getWidth() - 1) // a line of pixels remain don't care
+                continue; 
+            if (*startY == im.rows() - 1 && i == from->getWidth() - 1)
+                continue;
+            if (*startX == im.columns() - 1){
+                *startX = *startX = 0;
+                *startY = *startY + 1;
+            }
+            else if (*startY == im.rows() - 1){
+
+            }
+        }
+    }
+
+
+}*/
