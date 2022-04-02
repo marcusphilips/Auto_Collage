@@ -5,6 +5,7 @@ Made by Marcell Fulop for Citrus Hack 2022
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <vector>
 
 using namespace std;
 using namespace Magick;
@@ -37,6 +38,11 @@ Take in png and jpeg/jpg. Maybe others
 */
 bool isValidFile(string fn);
 
+/*
+Reads in the image file and puts it into the bitmap
+*/
+Bitmap readImage(string fn);
+
 int main(int argc, char** argv){
     // need to capture original image files
     string filepath = "./";
@@ -54,11 +60,13 @@ int main(int argc, char** argv){
     cout << filepath << endl;
     // point to the folder that contains all the files
     InitializeMagick(*argv);
-
+    vector<Bitmap> bitmaps;
     for (const auto& entry : fs::directory_iterator(filepath)){
        if (isValidFile(entry.path().string())){
            // valid file therefore read the image
             cout << entry.path().string() << endl;
+            // readfile
+            bitmaps.push_back();
        }
     }
     return 0;
@@ -77,4 +85,8 @@ bool isValidFile(string fn){
         return true;
     }
     return false;
+}
+
+Bitmap readImage(string fn){
+    
 }
