@@ -72,6 +72,11 @@ Reads in the image file and puts it into the bitmap
 */
 Bitmap* readImage(string fn);
 
+/*
+Takes in bitmap and image and starting coordinates
+*/
+void drawToImage(Image& im, Bitmap* from, int startX, int startY);
+
 int main(int argc, char** argv){
     // need to capture original image files
     string filepath = "./";
@@ -114,7 +119,19 @@ int main(int argc, char** argv){
     Color c(q, q, q); // c is black
     Image output = Image(g, c);
     // output is our "canvas"
+    // will be doing sacattering every two images
+    for (unsigned i = 0; i < bitmaps.size() - 1; i+=2){
+        // find the intersection of i and i + 1
+        int y;
+        
+    }
     output.write("testing.png");
+
+    // for the end
+    while (!bitmaps.empty()){
+        delete bitmaps.back();
+        bitmaps.pop_back();
+    }
     return 0;
 }
 
