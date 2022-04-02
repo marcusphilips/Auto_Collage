@@ -12,6 +12,7 @@ using namespace Magick;
 namespace fs = std::filesystem;
 
 struct Pixel{
+    // val ranges 0 - 255
     unsigned char red;
     unsigned char green;
     unsigned char blue;
@@ -19,9 +20,9 @@ struct Pixel{
     Pixel(unsigned char r, unsigned char g, unsigned char b): red(r), green(g), blue(b) {}
 };
 
-struct Bitmap{
-    Pixel** pixels; // (x,y)
+class Bitmap{
     private:
+        Pixel** pixels; // [y][x]
         int x;
         int y;
     public:
@@ -30,7 +31,15 @@ struct Bitmap{
         for (int i = 0; i < y; i++){
             pixels[i] = new Pixel[x];
         }
-
+    }
+    void setPixel(int col, int row, unsigned char red, unsigned char green, unsigned char blue){
+        pixels[row][col].red = red;
+        pixels[row][col].green = green;
+        pixels[row][col].blue = blue;
+    }
+    Pixel getPixel(int col, int row) const {
+        // does not check if such coordinate is out of bounds
+        return pixels[row][col];
     }
 };
 
@@ -67,12 +76,13 @@ int main(int argc, char** argv){
            // valid file therefore read the image
             cout << entry.path().string() << endl;
             // readfile
-            bitmaps.push_back();
+            bitmaps.push_back(readImage(entry.path().string()));
        }
        else {
            cout << entry.path().string() << " is an invalid file. Accepting only png, jpg, jpegs" << endl;
        }
     }
+   
     return 0;
 }
 
@@ -100,6 +110,15 @@ Bitmap readImage(string fn){
     const int WIDTH = im.columns();
     const int HEIGHT = im.rows();
     Bitmap b(WIDTH, HEIGHT);
-    
+    for (int y = 0; y < HEIGHT; y++){
+        for (int x = 0; x < WIDTH; x++){
+            ColorRGB q = im.pixelColor(x, y);
+            b.setPixel(x, y, 
+                (unsigned char)(q.red() * 255), 
+                (unsigned char)(q.green() * 255),
+                (unsigned char)(q.blue() * 255));
+        }
+    }
+    return b;
 
 }
