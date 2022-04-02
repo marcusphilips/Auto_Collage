@@ -24,6 +24,7 @@ struct Bitmap{
     private:
         int x;
         int y;
+    public:
     Bitmap(int cols, int rows): x(cols), y(rows){
         pixels = new Pixel*[y];
         for (int i = 0; i < y; i++){
@@ -68,6 +69,9 @@ int main(int argc, char** argv){
             // readfile
             bitmaps.push_back();
        }
+       else {
+           cout << entry.path().string() << " is an invalid file. Accepting only png, jpg, jpegs" << endl;
+       }
     }
     return 0;
 }
@@ -75,6 +79,9 @@ int main(int argc, char** argv){
 bool isValidFile(string fn){
     if (fn.size() < 4)
         return false;
+    if (fn.front() == '.'){
+        return false;
+    }
     if (fn.substr(fn.size() - 4) == ".jpg"){
         return true;
     }
@@ -88,5 +95,11 @@ bool isValidFile(string fn){
 }
 
 Bitmap readImage(string fn){
+    Image im;
+    im.read(fn);
+    const int WIDTH = im.columns();
+    const int HEIGHT = im.rows();
+    Bitmap b(WIDTH, HEIGHT);
     
+
 }
