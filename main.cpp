@@ -14,7 +14,28 @@ struct Pixel{
     unsigned char red;
     unsigned char green;
     unsigned char blue;
+    Pixel(): red(0), green(0), blue(0){}
+    Pixel(unsigned char r, unsigned char g, unsigned char b): red(r), green(g), blue(b) {}
 };
+
+struct Bitmap{
+    Pixel** pixels; // (x,y)
+    private:
+        int x;
+        int y;
+    Bitmap(int cols, int rows): x(cols), y(rows){
+        pixels = new Pixel*[y];
+        for (int i = 0; i < y; i++){
+            pixels[i] = new Pixel[x];
+        }
+
+    }
+};
+
+/*
+Take in png and jpeg/jpg. Maybe others 
+*/
+bool isValidFile(string fn);
 
 int main(int argc, char** argv){
     // need to capture original image files
@@ -33,9 +54,27 @@ int main(int argc, char** argv){
     cout << filepath << endl;
     // point to the folder that contains all the files
     InitializeMagick(*argv);
+
     for (const auto& entry : fs::directory_iterator(filepath)){
-       cout << entry.path() << endl;
-       string fn = entry.path();
+       if (isValidFile(entry.path().string())){
+           // valid file therefore read the image
+            cout << entry.path().string() << endl;
+       }
     }
     return 0;
+}
+
+bool isValidFile(string fn){
+    if (fn.size() < 4)
+        return false;
+    if (fn.substr(fn.size() - 4) == ".jpg"){
+        return true;
+    }
+    if (fn.substr(fn.size() - 5) == ".jpeg"){
+        return true;
+    }
+    if (fn.substr(fn.size() - 4) == ".png"){
+        return true;
+    }
+    return false;
 }
