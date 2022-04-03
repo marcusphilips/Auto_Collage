@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 
     // will make new image dimensioned sqrt(totalPixelAmount) by sqrt(totalPixelAmount)
     // ie a square
-    int n = (int)sqrt((double)totalPixelAmount);
+    int n =  ((int)sqrt((double)totalPixelAmount)) ;
     Geometry g = Geometry(n, n);
     Quantum q(0);
     Color c(q, q, q); // c is black
@@ -148,15 +148,15 @@ int main(int argc, char **argv)
     // will be doing sacattering every two images
     // get ready I'm about to make the world's worst collage
     // ok there has to be a better way
-   
+    
     for (Bitmap* b : bitmaps){ 
         srand(time(nullptr));
-        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
-        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+       // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+       // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
         drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
     }
     output.write("testing.jpg");
-
+    cout << "Drawed " << bitmaps.size() << " images to the collage " << endl;
     // for the end
     while (!bitmaps.empty())
     {
