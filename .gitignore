@@ -7,3 +7,4 @@ auto_collage
 cmake_install.cmake
 CMakeFiles/
 .vscode/c_cpp_properties.json
+.vscode/settings.json
