@@ -195,7 +195,7 @@ void drawToImage(Image &im, Bitmap *from, int startX, int startY)
 }
 
 void sliceImage(vector< Bitmap*> &b){
-    int n = b.size();
+    const int n = b.size();
     for (int i = 0; i < n; i++){
         srand(time(nullptr));
         int choice = rand()%4;
@@ -224,7 +224,9 @@ void sliceImage(vector< Bitmap*> &b){
             cut1[1] = b.at(i)->getHeight() - 1;
         }
         // diagnol pointing "southwest"/"northeast"
-        else if (choice == 3){}
+        else if (choice == 3){
+            
+        }
     }
 
 }

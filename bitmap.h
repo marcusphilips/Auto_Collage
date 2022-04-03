@@ -21,11 +21,12 @@ Think it as a very basic image format; stores pixels in a 2D array
 */
 class Bitmap
 {
-    private:
+private:
     Pixel **pixels; // [y][x]
     int x;
     int y;
-    public:
+
+public:
     Bitmap(int cols, int rows);
     ~Bitmap();
     void setPixel(int col, int row, unsigned char red, unsigned char green, unsigned char blue);
