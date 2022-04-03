@@ -7,6 +7,8 @@ Made by Marcell Fulop for Citrus Hack 2022
 #include <filesystem>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <ctime> 
 
 using namespace std;
 using namespace Magick;
@@ -146,10 +148,14 @@ int main(int argc, char **argv)
     // will be doing sacattering every two images
     // get ready I'm about to make the world's worst collage
     // ok there has to be a better way
-    for (Bitmap* b : bitmaps){
-        drawToImage(output, b, 0, 0);
+   
+    for (Bitmap* b : bitmaps){ 
+        srand(time(nullptr));
+        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
     }
-    output.write("testing.png");
+    output.write("testing.jpg");
 
     // for the end
     while (!bitmaps.empty())
