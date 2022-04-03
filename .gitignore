@@ -8,3 +8,9 @@ cmake_install.cmake
 CMakeFiles/
 .vscode/c_cpp_properties.json
 .vscode/settings.json
+build/compile_commands.json
+build/.cmake/api/v1/query/client-vscode/query.json
+build/.cmake/api/v1/reply/cache-v2-981927862970608e8ff0.json
+build/.cmake/api/v1/reply/codemodel-v2-377a77958ac7c6120153.json
+build/.cmake/api/v1/reply/target-auto_collage-Release-d3e9b6eb5abac83589cf.json
+build/.cmake/api/v1/reply/index-2022-04-03T04-38-50-0665.json

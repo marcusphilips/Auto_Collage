@@ -24,17 +24,17 @@ bool isValidFile(string fn);
 /*
 Reads in the image file and puts it into the bitmap
 */
-Bitmap *readImage(string fn);
+Bitmap* readImage(string fn);
 
 /*
 Takes in bitmap and image and starting coordinates to draw to Image object with the bitmap
 */
-void drawToImage(Image &im, Bitmap *from, int startX, int startY);
+void drawToImage(Image &im, Bitmap* from, int startX, int startY);
 
 /*
 Slices the images to get a more "collage" feel
 */
-void sliceImage(vector< Bitmap*> &b);
+void sliceImage(vector<Bitmap*> &b);
 
 int main(int argc, char **argv)
 {
