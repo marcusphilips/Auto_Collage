@@ -1,6 +1,7 @@
 /*
 Made by Marcell Fulop for Citrus Hack 2022
 */
+#include "bitmap.h"
 #include <Magick++.h>
 #include <iostream>
 #include <string>
@@ -8,72 +9,12 @@ Made by Marcell Fulop for Citrus Hack 2022
 #include <vector>
 #include <cmath>
 #include <cstdlib>
-#include <ctime> 
+#include <ctime>
+
 
 using namespace std;
 using namespace Magick;
 namespace fs = std::filesystem;
-
-/*
-Holds the red green and blue values with a range from 0 to 255
-*/
-struct Pixel
-{
-    // val ranges 0 - 255
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-    Pixel() : red(0), green(0), blue(0) {}
-    Pixel(unsigned char r, unsigned char g, unsigned char b) : red(r), green(g), blue(b) {}
-};
-
-/*
-Think it as a very basic image format; stores pixels in a 2D array
-*/
-class Bitmap
-{
-private:
-    Pixel **pixels; // [y][x]
-    int x;
-    int y;
-
-public:
-    Bitmap(int cols, int rows) : x(cols), y(rows)
-    {
-        pixels = new Pixel *[y];
-        for (int i = 0; i < y; i++)
-        {
-            pixels[i] = new Pixel[x];
-        }
-    }
-    ~Bitmap()
-    {
-        for (int i = 0; i < y; i++)
-        {
-            delete[] pixels[i];
-        }
-        delete[] pixels;
-    }
-    void setPixel(int col, int row, unsigned char red, unsigned char green, unsigned char blue)
-    {
-        pixels[row][col].red = red;
-        pixels[row][col].green = green;
-        pixels[row][col].blue = blue;
-    }
-    Pixel getPixel(int col, int row) const
-    {
-        // does not check if such coordinate is out of bounds
-        return pixels[row][col];
-    }
-    int getWidth() const
-    {
-        return x;
-    }
-    int getHeight() const
-    {
-        return y;
-    }
-};
 
 /*
 Take in png and jpeg/jpg. Maybe others
@@ -89,6 +30,11 @@ Bitmap *readImage(string fn);
 Takes in bitmap and image and starting coordinates to draw to Image object with the bitmap
 */
 void drawToImage(Image &im, Bitmap *from, int startX, int startY);
+
+/*
+Slices the images to get a more "collage" feel
+*/
+void sliceImage(vector< Bitmap*> &b);
 
 int main(int argc, char **argv)
 {
@@ -136,10 +82,15 @@ int main(int argc, char **argv)
             xSmallest = bitmaps.at(i)->getWidth();
         totalPixelAmount += bitmaps.at(i)->getHeight() * bitmaps.at(i)->getWidth();
     }
+    // going to "cut" the bitmaps by just setting a certain portion of the pixels transparent
+    // the data underlying the bitmap will still be there so not most memory efficient 
+    // need to decide how to cut; four options
+    
+    sliceImage(bitmaps);
 
     // will make new image dimensioned sqrt(totalPixelAmount) by sqrt(totalPixelAmount)
     // ie a square
-    int n =  ((int)sqrt((double)totalPixelAmount)) ;
+    int n = ((int)sqrt((double)totalPixelAmount));
     Geometry g = Geometry(n, n);
     Quantum q(0);
     Color c(q, q, q); // c is black
@@ -148,12 +99,13 @@ int main(int argc, char **argv)
     // will be doing sacattering every two images
     // get ready I'm about to make the world's worst collage
     // ok there has to be a better way
-    
-    for (Bitmap* b : bitmaps){ 
+
+    for (Bitmap *b : bitmaps)
+    {
         srand(time(nullptr));
-       // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
-       // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
-        drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+        // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+        // drawToImage(output, b, 4*(rand() % n) / 5, 4*(rand() % n) / 5);
+        drawToImage(output, b, 4 * (rand() % n) / 5, 4 * (rand() % n) / 5);
     }
     output.write("testing.jpg");
     cout << "Drawed " << bitmaps.size() << " images to the collage " << endl;
@@ -205,9 +157,9 @@ Bitmap *readImage(string fn)
                         (unsigned char)(q.green() * 255.0),
                         (unsigned char)(q.blue() * 255.0));
             if (fn.substr(fn.size() - 9) == "_test.png")
-            {   // both clear
-                // cout << "(" << q.red() << ", " << q.green() << ", " << q.blue() << ")" <<endl;
-                // cout << "(" << (int)b->getPixel(x, y).red<< ", "<< (int)b->getPixel(x, y).green << "," <<(int)b->getPixel(x, y).blue << ")" << endl;
+            { // both clear
+              // cout << "(" << q.red() << ", " << q.green() << ", " << q.blue() << ")" <<endl;
+              // cout << "(" << (int)b->getPixel(x, y).red<< ", "<< (int)b->getPixel(x, y).green << "," <<(int)b->getPixel(x, y).blue << ")" << endl;
             }
         }
         // cout << " " << y << endl;
@@ -217,11 +169,11 @@ Bitmap *readImage(string fn)
 
 void drawToImage(Image &im, Bitmap *from, int startX, int startY)
 {
-    for (unsigned row = 0; row < (unsigned) from->getHeight(); row++)
+    for (unsigned row = 0; row < (unsigned)from->getHeight(); row++)
     {
-        for (unsigned col = 0; col < (unsigned) from->getWidth(); col++)
+        for (unsigned col = 0; col < (unsigned)from->getWidth(); col++)
         {
-            if (row + startY >= im.rows() && col + startX >= im.columns() )
+            if (row + startY >= im.rows() && col + startX >= im.columns())
             {
                 return;
             }
@@ -234,11 +186,45 @@ void drawToImage(Image &im, Bitmap *from, int startX, int startY)
                 continue;
             }
             ColorRGB color(
-                from->getPixel(col, row).red/255.0,
-                from->getPixel(col, row).green/255.0,
-                from->getPixel(col, row).blue/255.0);
+                from->getPixel(col, row).red / 255.0,
+                from->getPixel(col, row).green / 255.0,
+                from->getPixel(col, row).blue / 255.0);
             im.pixelColor(col + startX, row + startY, color);
-
         }
     }
+}
+
+void sliceImage(vector< Bitmap*> &b){
+    int n = b.size();
+    for (int i = 0; i < n; i++){
+        srand(time(nullptr));
+        int choice = rand()%4;
+        int* cut0 = new int[2];
+        int* cut1 = new int[2];
+        // choose to go top down
+        // recall [y][x]
+        if (choice == 0){
+            cut0[0] = 0;
+            cut0[1] = b.at(i)->getWidth()/2;
+            cut1[0] = b.at(i)->getHeight() - 1;
+            cut1[1] = cut0[1];
+        }
+        // diagnol pointing "southeast"/"northwest"
+        else if (choice == 1){
+            cut0[0] = 0;
+            cut0[1] = 0;
+            cut1[0] = b.at(i)->getHeight() - 1;
+            cut1[1] = b.at(i)->getWidth() - 1;
+        }
+        // going horizontal
+        else if (choice == 2){
+            cut0[0] = b.at(i)->getHeight()/2; 
+            cut0[1] = 0;
+            cut1[0] = cut0[0];
+            cut1[1] = b.at(i)->getHeight() - 1;
+        }
+        // diagnol pointing "southwest"/"northeast"
+        else if (choice == 3){}
+    }
+
 }
